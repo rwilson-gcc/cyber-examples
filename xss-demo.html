@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Security Insight: XSS (Comments Demo)</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #1e1e1e;
+        color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
+
+    .layout {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 280px;
+        background: #242424;
+        padding: 25px;
+        border-right: 2px solid #333;
+    }
+    .sidebar h2 {
+        color: #61dafb;
+        margin-bottom: 15px;
+    }
+    .sidebar p {
+        line-height: 1.4em;
+        margin-bottom: 15px;
+    }
+    .sidebar ul {
+        margin-left: 15px;
+        padding-left: 10px;
+    }
+
+    /* Main content */
+    .content {
+        flex: 1;
+        padding: 40px;
+    }
+
+    .container {
+        width: 700px;
+        margin: auto;
+        background: #2b2b2b;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #61dafb;
+    }
+
+    textarea {
+        width: 100%;
+        height: 120px;
+        padding: 12px;
+        background: #3b3b3b;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-size: 1em;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        background: #61dafb;
+        color: #000;
+        font-size: 1.1em;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 12px;
+    }
+    button:hover {
+        background: #52c4e8;
+    }
+
+    .section-title {
+        margin-top: 25px;
+        font-size: 1.2em;
+        color: #ffa657;
+    }
+
+    .comment {
+        background: #1a1a1a;
+        border-left: 4px solid #61dafb;
+        padding: 10px;
+        margin-top: 15px;
+        border-radius: 6px;
+        white-space: pre-wrap;
+    }
+
+    .warning {
+        color: #ff6f6f;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- LEFT SIDEBAR -->
+    <div class="sidebar">
+        <h2>Security Insight: XSS</h2>
+        <p><strong>Cross-Site Scripting (XSS)</strong> occurs when untrusted user input is injected into a web page and interpreted as HTML/JavaScript.</p>
+
+        <h3>Why It Happens</h3>
+        <ul>
+            <li>Unsafe rendering of user input</li>
+            <li>Using <code>innerHTML</code> with untrusted data</li>
+            <li>Lack of escaping / output encoding</li>
+        </ul>
+
+        <h3>How To Prevent It</h3>
+        <ul>
+            <li>Use <code>textContent</code> instead of <code>innerHTML</code></li>
+            <li>Escape all user-supplied content</li>
+            <li>Validate inputs and strip dangerous tags</li>
+            <li>Apply Content Security Policy (CSP)</li>
+        </ul>
+
+        <p>This demo simulates how a comments system detects XSS attempts.</p>
+    </div>
+
+    <!-- RIGHT CONTENT -->
+    <div class="content">
+        <div class="container">
+
+            <h1>XSS Demo — Comment System</h1>
+
+            <label for="commentBox">Add a Comment:</label>
+            <textarea id="commentBox" placeholder="Try typing: <script>alert('XSS')</script>"></textarea>
+
+            <button onclick="postComment()">Post Comment</button>
+
+            <div id="warning" class="warning"></div>
+
+            <div class="section-title">Comments</div>
+            <div id="comments"></div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+function postComment() {
+    const box = document.getElementById("commentBox");
+    const comments = document.getElementById("comments");
+    const warn = document.getElementById("warning");
+
+    const text = box.value.trim();
+    warn.textContent = "";
+
+    if (!text) return;
+
+    // XSS detection patterns
+    const xssPatterns = [
+        /<script.*?>.*?<\/script>/gi,
+        /on\w+=".*?"/gi,
+        /javascript:/gi
+    ];
+
+    let isXSS = xssPatterns.some(rx => rx.test(text));
+
+    if (isXSS) {
+        warn.textContent = "⚠️ XSS Attempt Detected! Your comment contained potentially dangerous script content.";
+    }
+
+    // Always escape output
+    const safeHTML = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    const comment = document.createElement("div");
+    comment.className = "comment";
+    comment.textContent = safeHTML;
+
+    comments.prepend(comment);
+    box.value = "";
+}
+</script>
+
+</body>
+</html>
