@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SQL Injection Demo (With Learning Sidebar)</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #1e1e1e;
+        color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
+
+    .layout {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* ------ LEFT SIDEBAR ------ */
+    .sidebar {
+        width: 280px;
+        background: #242424;
+        padding: 25px;
+        border-right: 2px solid #333;
+    }
+
+    .sidebar h2 {
+        color: #61dafb;
+        margin-bottom: 15px;
+    }
+
+    .sidebar p {
+        line-height: 1.4em;
+        margin-bottom: 15px;
+    }
+
+    .sidebar ul {
+        margin-left: 15px;
+    }
+
+    /* ------ RIGHT CONTENT ------ */
+    .content {
+        flex: 1;
+        padding: 40px;
+    }
+
+    .container {
+        width: 600px;
+        margin: auto;
+        background: #2b2b2b;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #61dafb;
+    }
+
+    label {
+        font-size: 1.1em;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0 18px 0;
+        border: none;
+        border-radius: 5px;
+        background: #3b3b3b;
+        color: white;
+        font-size: 1em;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        background: #61dafb;
+        color: #000;
+        font-size: 1.1em;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #52c4e8;
+    }
+
+    .section-title {
+        margin-top: 25px;
+        font-size: 1.2em;
+        color: #ffa657;
+    }
+
+    .sql-box, .result-box, .db-box {
+        background: #111;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+        font-family: "Courier New", monospace;
+        white-space: pre-wrap;
+        overflow-x: auto;
+    }
+
+    .good { color: #9fdb9f; }
+    .bad { color: #ff6f6f; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- LEFT LEARNING NUGGET SIDEBAR -->
+    <div class="sidebar">
+        <h2>Security Insight: SQL Injection</h2>
+        <p><strong>SQL Injection</strong> is a type of attack where an attacker inserts 
+        malicious SQL code into an application's input fields to manipulate the database query.</p>
+
+        <p>This works because the application <strong>directly inserts user input</strong> into 
+        an SQL query without validation or sanitisation.</p>
+
+        <h3>Why It Happens</h3>
+        <ul>
+            <li>Unsanitised input</li>
+            <li>String‑built SQL queries</li>
+            <li>No use of parameterised statements</li>
+        </ul>
+
+        <h3>How To Prevent It</h3>
+        <ul>
+            <li>Use prepared statements / parameterised queries</li>
+            <li>Validate and sanitise all input</li>
+            <li>Use least-privilege database accounts</li>
+            <li>Avoid building SQL by string concatenation</li>
+        </ul>
+
+        <p>This demo shows how vulnerable SQL behaves and how attackers can bypass login systems.</p>
+    </div>
+
+    <!-- RIGHT MAIN CONTENT -->
+    <div class="content">
+        <div class="container">
+
+            <h1>SQL Injection Demo</h1>
+
+            <label>Username:</label>
+            <input id="username" type="text" oninput="updateSQL()">
+
+            <label>Password:</label>
+            <input id="password" type="password" oninput="updateSQL()">
+
+            <button onclick="fakeLogin()">Login</button>
+
+            <div class="section-title">Generated SQL Query</div>
+            <div id="sqlOutput" class="sql-box"></div>
+
+            <div class="section-title">Login Result</div>
+            <div id="result" class="result-box"></div>
+
+            <div class="section-title">Database Dump (Only if Injected)</div>
+            <div id="dbDump" class="db-box"></div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+function updateSQL() {
+    const u = document.getElementById("username").value;
+    const p = document.getElementById("password").value;
+
+    const sql = 
+`SELECT * FROM users 
+WHERE username = '${u}' 
+AND password = '${p}';`;
+
+    document.getElementById("sqlOutput").innerText = sql;
+}
+
+function fakeLogin() {
+    const u = document.getElementById("username").value;
+    const p = document.getElementById("password").value;
+
+    const resultBox = document.getElementById("result");
+    const dbDump = document.getElementById("dbDump");
+
+    // Reset → clean output every login
+    resultBox.innerHTML = "";
+    dbDump.innerHTML = "";
+
+    // Fake correct login
+    const validUser = "admin";
+    const validPass = "password123";
+
+    // Simple SQL injection detection
+    const injection = ["' OR '1'='1", "' OR 1=1 --", "' OR '1'='1' --"];
+
+    const isInjected = injection.some(payload => 
+        u.includes(payload) || p.includes(payload)
+    );
+
+    if (isInjected) {
+        resultBox.innerHTML = "<span class='bad'>🔥 SQL Injection Successful — Bypassed Login</span>";
+        dbDump.innerHTML =
+`[FAKE USER DATABASE]
+
+id | username | password
+--------------------------------
+1  | admin    | password123
+2  | bob      | hunter2
+3  | alice    | qwerty
+4  | test     | letmein
+`;
+        return;
+    }
+
+    // Normal login check
+    if (u === validUser && p === validPass) {
+        resultBox.innerHTML = "<span class='good'>✔ Login Successful</span>";
+    } else {
+        resultBox.innerHTML = "<span class='bad'>❌ Unauthorised Access</span>";
+    }
+}
+</script>
+
+</body>
+</html>
