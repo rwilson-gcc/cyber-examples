@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Security Insight: Command Injection</title>
+
+<style>
+    * { box-sizing: border-box; }
+    body {
+        font-family: Arial, sans-serif;
+        background: #1e1e1e;
+        color: #f0f0f0;
+        margin: 0;
+    }
+    .layout { display: flex; min-height: 100vh; }
+
+    /* SIDEBAR -------------------------------------------------- */
+    .sidebar {
+        width: 300px;
+        background: #242424;
+        padding: 25px;
+        border-right: 2px solid #333;
+        overflow-y: auto;
+        max-height: 100vh;
+    }
+    .sidebar h2 { color: #61dafb; margin-bottom: 15px; }
+    .sidebar h3 { margin-top: 18px; color: #ffa657; }
+    .sidebar p { line-height: 1.45em; margin-bottom: 10px; }
+    .sidebar ul { margin-left: 18px; margin-bottom: 10px; }
+
+    /* MAIN CONTENT -------------------------------------------- */
+    .content { flex: 1; padding: 40px; }
+    .container {
+        width: 850px;
+        margin: auto;
+        background: #2b2b2b;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+    h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #61dafb;
+    }
+
+    label { display: block; margin-bottom: 6px; }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        background: #3b3b3b;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        margin-bottom: 15px;
+    }
+
+    .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    button {
+        padding: 12px 16px;
+        background: #61dafb;
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+    button:hover { background: #52c4e8; }
+
+    .panel {
+        background: #111;
+        padding: 16px;
+        border-radius: 8px;
+        margin-top: 20px;
+        font-family: "Courier New", monospace;
+        white-space: pre-wrap;
+    }
+
+    .section-title {
+        margin-top: 20px;
+        font-size: 1.2em;
+        color: #ffa657;
+    }
+
+    .good { color: #9fdb9f; }
+    .bad { color: #ff6f6f; }
+
+    .highlight {
+        background: #402020;
+        color: #ffb0b0;
+        padding: 2px 4px;
+        border-radius: 3px;
+    }
+
+    .info-box {
+        background: #333;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        font-size: 0.9em;
+        opacity: 0.9;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR ------------------------------------------------ -->
+    <div class="sidebar">
+        <h2>Security Insight: Command Injection</h2>
+
+        <p><strong>Command Injection</strong> happens when user input is passed directly into a system command without validation. This allows attackers to run additional commands on the server.</p>
+
+        <h3>What’s Going On?</h3>
+        <p>Unsafe code often looks like:</p>
+        <p><code>exec("ping " + userInput)</code></p>
+        <p>If the attacker enters <code>; ls</code>, the server runs <strong>two commands</strong>:</p>
+        <p><code>ping 8.8.8.8; ls</code></p>
+
+        <h3>Why It’s Important</h3>
+        <ul>
+            <li>Reading sensitive files</li>
+            <li>Listing directories</li>
+            <li>Dumping network info</li>
+            <li>Deleting or editing files</li>
+            <li>Full system compromise</li>
+        </ul>
+
+        <h3>Safe vs Unsafe Execution</h3>
+        <p><strong>Unsafe:</strong> The application builds a command string from user input.</p>
+        <p><strong>Safe:</strong> Use APIs that run commands <em>without the shell</em>, such as:</p>
+        <ul>
+            <li>Node: <code>execFile()</code></li>
+            <li>Python: <code>subprocess.run(["ping", host])</code></li>
+            <li>Java: <code>ProcessBuilder</code></li>
+        </ul>
+
+        <h3>Simulated Attack Commands</h3>
+        <p>This demo recognises:</p>
+        <ul>
+            <li><code>ls</code> (list directory)</li>
+            <li><code>ip a</code> (network interfaces)</li>
+            <li><code>more</code></li>
+            <li><code>cat</code></li>
+        </ul>
+
+        <h3>How To Prevent Command Injection</h3>
+        <ul>
+            <li>Whitelist valid input</li>
+            <li>Use safe APIs rather than shell commands</li>
+            <li>Never concatenate user input into shell commands</li>
+            <li>Run servers with least privilege</li>
+        </ul>
+    </div>
+
+    <!-- MAIN CONTENT ------------------------------------------ -->
+    <div class="content">
+        <div class="container">
+
+            <h1>Command Injection Demo (Simulated)</h1>
+
+            <div class="info-box" id="modeInfo">Unsafe command execution mode.</div>
+
+            <div class="checkbox-row">
+                <input type="checkbox" id="safeMode">
+                <label for="safeMode">Use Safe Execution Mode</label>
+            </div>
+
+            <label>Enter hostname to ping:</label>
+            <input type="text" id="host" placeholder="Try: 8.8.8.8; ls">
+
+            <button onclick="simulate()">Run (Simulated)</button>
+
+            <div class="section-title">Constructed Command</div>
+            <div id="cmd" class="panel"></div>
+
+            <div class="section-title">Result</div>
+            <div id="result" class="panel"></div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+function highlightDanger(str) {
+    return str.replace(/(;|&&|\|\||\||`|>|<)/g,
+        m => `<span class="highlight">${m}</span>`);
+}
+
+function simulate() {
+    const host = document.getElementById("host").value.trim();
+    const safe = document.getElementById("safeMode").checked;
+
+    const result = document.getElementById("result");
+    const cmd = document.getElementById("cmd");
+
+    // Update mode info
+    document.getElementById("modeInfo").innerHTML =
+        safe ?
+        "Safe mode enabled — input is validated and restricted." :
+        "Unsafe mode — user input goes directly into a shell command.";
+
+    if (safe) {
+        // Safe execution path
+        const constructed = `execFile("ping", ["${host}"])`;
+        cmd.textContent = constructed;
+
+        if (!/^[a-zA-Z0-9.\-]+$/.test(host)) {
+            result.innerHTML = `<span class="bad">❌ Unsafe characters blocked.</span>`;
+        } else {
+            result.innerHTML = `<span class="good">✔ Safe execution</span>
+            <br>Reply from ${host}: time=12ms (simulated)`;
+        }
+        return;
+    }
+
+    // Unsafe mode simulation -------------------------------------
+    const constructed = `ping -c 2 ${host}`;
+    cmd.innerHTML = highlightDanger(constructed);
+
+    // detect injection operators
+    const separatorPattern = /(;;|&&|\|\||;|\||`|>|<)/;
+    const sepMatch = host.match(separatorPattern);
+
+    if (!sepMatch) {
+        result.innerHTML = `<span class="good">✔ No injection detected</span>
+        <br>Pinging ${host}... (simulated)`;
+        return;
+    }
+
+    // extract injected command
+    const parts = host.split(separatorPattern);
+    // parts = [before, separator, after]
+    const injected = (parts[2] || "").trim().toLowerCase();
+
+    let output = `<span class="bad">🔥 Command Injection Detected!</span><br><br>`;
+    output += `Injected command → <strong>${injected}</strong><br><br>`;
+
+    // Simulated command outputs ----------------------------------
+    if (injected === "ls") {
+        output += `Simulated Directory Listing:
+/home/student/
+  Documents/
+  Downloads/
+  pictures/
+  scripts/
+  notes.md
+  secret.txt`;
+    }
+
+    else if (injected === "ip a" || injected === "ip a") {
+        output += `Simulated Network Interfaces:
+1: lo: <LOOPBACK,UP>
+    inet 127.0.0.1/8
+2: eth0: <UP,BROADCAST,RUNNING>
+    inet 192.168.1.23/24
+    inet6 fe80::abcd:1234:5678/64`;
+    }
+
+    else if (injected === "more secret.txt" || injected === "cat secret.txt") {
+        output += `Simulated File Contents (secret.txt):
+TOP SECRET
+------------
+This is a classified system file.
+Property of ACME Secure Systems.
+Do NOT share this with anyone.`;
+    }
+
+    else {
+        output += `(Unknown injected command — simulated)`
+    }
+
+    result.innerHTML = output;
+}
+</script>
+
+</body>
+</html>
