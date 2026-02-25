@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Security Insight: CSRF (Simulated)</title>
+
+<style>
+    * { box-sizing: border-box; }
+
+    body {
+        font-family: Arial, sans-serif;
+        background: #1e1e1e;
+        color: #f0f0f0;
+        margin: 0;
+    }
+
+    .layout {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* SIDEBAR ---------------------------------------------------- */
+    .sidebar {
+        width: 300px;
+        background: #242424;
+        padding: 25px;
+        border-right: 2px solid #333;
+        /* Scroll if content is tall */
+        overflow-y: auto;
+        max-height: 100vh;
+    }
+
+    .sidebar h2 {
+        color: #61dafb;
+        margin-bottom: 15px;
+    }
+
+    .sidebar h3 {
+        margin-top: 18px;
+        color: #ffa657;
+    }
+
+    .sidebar p {
+        line-height: 1.45;
+        margin-bottom: 10px;
+    }
+
+    .sidebar ul {
+        margin-left: 18px;
+        margin-bottom: 10px;
+    }
+
+    /* MAIN CONTENT ----------------------------------------------- */
+    .content {
+        flex: 1;
+        padding: 40px;
+    }
+
+    .container {
+        width: 850px;
+        max-width: 100%;
+        margin: auto;
+        background: #2b2b2b;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #61dafb;
+    }
+
+    label {
+        display: block;
+        font-size: 1em;
+        margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+        width: 100%;
+        padding: 12px;
+        background: #3b3b3b;
+        border: none;
+        border-radius: 6px;
+        color: #fff;
+        margin-bottom: 15px;
+    }
+
+    .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0 15px;
+    }
+
+    input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    button {
+        padding: 12px 16px;
+        background: #61dafb;
+        color: #000;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 10px 0;
+    }
+
+    button:hover {
+        background: #52c4e8;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .panel {
+        flex: 1;
+        min-width: 350px;
+        background: #111;
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    .pill {
+        display: inline-block;
+        padding: 4px 8px;
+        background: #333;
+        color: #ccc;
+        border-radius: 8px;
+        font-size: 0.85em;
+        margin-bottom: 10px;
+    }
+
+    .section-title {
+        margin-top: 20px;
+        font-size: 1.2em;
+        color: #ffa657;
+    }
+
+    .good { color: #9fdb9f; }
+    .bad { color: #ff6f6f; }
+
+    #serverLog {
+        white-space: pre-wrap;
+        font-family: "Courier New", monospace;
+        background: #111;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR WITH CLARIFIED EXPLANATION + SCROLL --------------- -->
+    <div class="sidebar">
+        <h2>Security Insight: CSRF</h2>
+
+        <p><strong>Cross‑Site Request Forgery (CSRF)</strong> is an attack where a user is tricked into performing an action on a site where they are already logged in.</p>
+
+        <h3>What’s Going On?</h3>
+        <p>Your browser automatically includes your <strong>session cookie</strong> with every request — even if that request was triggered by a malicious website.</p>
+        <p>The server cannot tell a real request from a forged one.</p>
+
+        <h3>Why It’s Important</h3>
+        <ul>
+            <li>Unauthorised money transfers</li>
+            <li>Password or email changes</li>
+            <li>Admin actions triggered silently</li>
+            <li>Data deletion or modification</li>
+        </ul>
+
+        <h3>Understanding CSRF Token Protection</h3>
+
+        <p>Imagine your browser has a <strong>magic badge</strong> (your login cookie) that proves who you are when you visit your bank.</p>
+
+        <p>A malicious website can secretly trigger a request like:</p>
+
+        <p><em>“Send £500 to the attacker!”</em></p>
+
+        <p>Your browser might unknowingly send this request using your magic badge.</p>
+
+        <p>CSRF protection adds a <strong>secret extra password</strong> (a CSRF token) to real forms. Only the real site knows this secret — attackers don't.</p>
+
+        <p>If a request doesn't include the secret token:</p>
+        <p><strong>❌ No token → request blocked<br>✔ Correct token → real request allowed</strong></p>
+
+        <p>It's like a club checking both:</p>
+        <ul>
+            <li>Your ID (cookie)</li>
+            <li>Your wristband (CSRF token)</li>
+        </ul>
+        <p>No wristband? No entry.</p>
+
+        <h3>How This Demo Works</h3>
+        <ul>
+            <li><strong>Victim Site</strong>: the real bank form</li>
+            <li><strong>Attacker Site</strong>: sends a forged request</li>
+            <li><strong>CSRF Token</strong>: blocks forged requests</li>
+        </ul>
+
+        <h3>How To Prevent CSRF</h3>
+        <ul>
+            <li>CSRF tokens</li>
+            <li>SameSite cookies</li>
+            <li>Double‑submit cookie pattern</li>
+            <li>Avoid GET for state‑changing actions</li>
+        </ul>
+    </div>
+
+    <!-- MAIN CONTENT (DEMO) -------------------------------------- -->
+    <div class="content">
+        <div class="container">
+
+            <h1>CSRF Demo (Simulated)</h1>
+
+            <div class="row">
+
+                <!-- Victim Site Panel -->
+                <div class="panel">
+                    <span class="pill">Victim Site</span>
+
+                    <div class="section-title">Bank Transfer</div>
+
+                    <label>To account:</label>
+                    <input id="toAcct" placeholder="e.g. 12345678">
+
+                    <label>Amount (£):</label>
+                    <input id="amount" type="number" value="100">
+
+                    <div class="checkbox-row">
+                        <input id="enableCsrf" type="checkbox" checked>
+                        <label for="enableCsrf">Enable CSRF Token Protection</label>
+                    </div>
+
+                    <div id="csrfTokenView" class="note"></div>
+
+                    <button onclick="legitTransfer()">Submit Transfer</button>
+
+                    <div class="section-title">Result</div>
+                    <div id="legitResult" class="panel" style="background:#0e0e0e;"></div>
+                </div>
+
+                <!-- Attacker Site Panel -->
+                <div class="panel">
+                    <span class="pill">Attacker Site</span>
+
+                    <div class="section-title">Forged Request</div>
+                    <p>This simulates a malicious website trying to trigger a transfer using your logged‑in session.</p>
+
+                    <button onclick="csrfAttack()">Launch CSRF Attack</button>
+
+                    <div class="section-title">Attack Result</div>
+                    <div id="attackResult" class="panel" style="background:#0e0e0e;"></div>
+                </div>
+
+            </div>
+
+            <div class="section-title">How the Server Decides</div>
+            <div id="serverLog"></div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* CSRF Token Handling */
+let csrfToken = genToken();
+updateTokenView();
+
+function genToken() {
+    return Math.random().toString(36).substring(2) +
+           Math.random().toString(36).substring(2);
+}
+
+function updateTokenView() {
+    const enabled = document.getElementById('enableCsrf').checked;
+    document.getElementById('csrfTokenView').textContent =
+        enabled ? `CSRF token: ${csrfToken}` : "CSRF protection disabled";
+}
+
+document.getElementById('enableCsrf').addEventListener('change', () => {
+    if (document.getElementById('enableCsrf').checked) csrfToken = genToken();
+    updateTokenView();
+});
+
+/* Server-Side Logic Simulation */
+function serverProcess({to, amount, token, tokenRequired}) {
+    let log = [];
+
+    log.push("POST /transfer");
+    log.push("Cookie: session=... (browser includes automatically)");
+    if (tokenRequired) log.push("Form token: " + (token || "(missing)"));
+    log.push(`Form data: to=${to}, amount=${amount}`);
+
+    if (tokenRequired && token !== csrfToken) {
+        log.push("Decision: 403 — invalid/missing CSRF token");
+        return {ok:false, log:log.join("\n"), msg:"❌ Blocked by CSRF protection"};
+    }
+
+    log.push("Decision: 200 — transfer accepted");
+    return {ok:true, log:log.join("\n"), msg:"✔ Transfer successful"};
+}
+
+function legitTransfer() {
+    const to = document.getElementById('toAcct').value.trim();
+    const amount = Number(document.getElementById('amount').value);
+    const tokenRequired = document.getElementById('enableCsrf').checked;
+
+    const res = serverProcess({
+        to,
+        amount,
+        token: tokenRequired ? csrfToken : undefined,
+        tokenRequired
+    });
+
+    document.getElementById('legitResult').innerHTML =
+        res.ok ? `<span class="good">${res.msg}</span>`
+               : `<span class="bad">${res.msg}</span>`;
+
+    document.getElementById('serverLog').textContent = res.log;
+}
+
+function csrfAttack() {
+    const tokenRequired = document.getElementById('enableCsrf').checked;
+
+    const res = serverProcess({
+        to: "ATTACKER-ACCT",
+        amount: 999,
+        token: undefined,
+        tokenRequired
+    });
+
+    document.getElementById('attackResult').innerHTML =
+        res.ok ? `<span class="bad">🔥 CSRF succeeded — funds stolen!</span>`
+               : `<span class="good">🛡️ CSRF blocked — token missing</span>`;
+
+    document.getElementById('serverLog').textContent = res.log;
+}
+</script>
+
+</body>
+</html>
