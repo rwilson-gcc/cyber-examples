@@ -134,7 +134,6 @@
         overflow-x: auto;
         font-family: "Courier New", monospace;
     }
-
 </style>
 </head>
 
@@ -190,9 +189,8 @@
             <div id="dbDump" class="db-box"></div>
         </div>
 
-
         <!-- ========================================================= -->
-        <!--     FULL TEACHING CONTENT (Sections 1–11) BELOW DEMO      -->
+        <!--     FULL TEACHING CONTENT (Sections 1–8 & 11) BELOW       -->
         <!-- ========================================================= -->
 
         <div class="teaching-section">
@@ -216,22 +214,24 @@
                 <li>Privilege escalation</li>
                 <li>Full system compromise</li>
             </ul>
+            <p>SQL Injection remains one of the most common and critical vulnerabilities (OWASP Top 10 – Injection).</p>
 
             <h2 class="section-title">3. Why SQL Injection Happens</h2>
 
             <h3>3.1 Unsanitised User Input</h3>
             <p>Applications trust user input without validation.</p>
 
-            <h3>3.2 String-built SQL Queries</h3>
+            <h3>3.2 String‑Built SQL Queries</h3>
             <pre>
 query = "SELECT * FROM users WHERE username = '" + user_input + "';";
             </pre>
+            <p>Attackers insert characters that change the query structure.</p>
 
             <h3>3.3 Lack of Parameterised Queries</h3>
-            <p>Allows attackers to modify the SQL structure.</p>
+            <p>Safe code separates SQL from data — preventing injection.</p>
 
-            <h3>3.4 Over-privileged Accounts</h3>
-            <p>Increases the damage caused by SQLi.</p>
+            <h3>3.4 Over‑Privileged Database Accounts</h3>
+            <p>Excess privileges increase the blast radius of a successful SQLi.</p>
 
             <h2 class="section-title">4. Attack Flow Diagram</h2>
             <pre>
@@ -246,90 +246,85 @@ Database Executes Malicious SQL
 Attacker Gains Unauthorised Access
             </pre>
 
-            <h2 class="section-title">5. Demo Scenario</h2>
-            <h3>Intended Query</h3>
+            <h2 class="section-title">5. Demo Scenario (SQL Injection in Action)</h2>
+            <h3>5.1 Intended Query</h3>
             <pre>
 SELECT * FROM users
 WHERE username = 'USER_INPUT'
 AND password = 'PASS_INPUT';
             </pre>
 
-            <h3>Example Input</h3>
+            <h3>5.2 Example Input</h3>
             <pre>
-admin' --
+Username: admin' --
+Password: anything
             </pre>
 
-            <h3>Resulting Malicious Query</h3>
+            <h3>5.3 Resulting Malicious Query</h3>
             <pre>
 SELECT * FROM users
 WHERE username = 'admin' --'
 AND password = 'anything';
             </pre>
+            <p>The <code>--</code> comment truncates the password check, bypassing authentication.</p>
 
-            <h2 class="section-title">6. Vulnerable vs Secure Code Examples</h2>
+            <h3>5.4 What Learners Should Observe</h3>
+            <ul>
+                <li>The SQL preview updates based on your input</li>
+                <li>Login bypass occurs with SQLi payloads</li>
+                <li>A fake “database dump” appears when injection succeeds</li>
+            </ul>
 
-            <h3>❌ Insecure Example</h3>
+            <h2 class="section-title">6. Vulnerable vs Secure Coding Examples</h2>
+
+            <h3>❌ Insecure Example (Concatenation)</h3>
             <pre>
 query = "SELECT * FROM users WHERE username = '" + user_input + "';";
 cursor.execute(query);
             </pre>
 
-            <h3>✅ Secure Example (Parameterised)</h3>
+            <h3>✅ Secure Example (Parameterised Query)</h3>
             <pre>
 query = "SELECT * FROM users WHERE username = %s;";
 cursor.execute(query, (user_input,));
             </pre>
 
-            <h2 class="section-title">7. Prevention</h2>
+            <h2 class="section-title">7. How to Prevent SQL Injection</h2>
             <ul>
-                <li>Use parameterised queries</li>
-                <li>Input validation and sanitisation</li>
-                <li>Least privilege DB accounts</li>
-                <li>Avoid dynamic SQL</li>
-                <li>Use WAFs</li>
+                <li>Use parameterised queries (prepared statements)</li>
+                <li>Validate and sanitise input (whitelisting expected formats)</li>
+                <li>Use least‑privilege database accounts</li>
+                <li>Avoid dynamic SQL where possible</li>
+                <li>Use a Web Application Firewall (WAF) for common payloads</li>
             </ul>
 
-            <h2 class="section-title">8. Case Studies</h2>
+            <h2 class="section-title">8. Real‑World SQL Injection Case Studies</h2>
 
             <h3>TalkTalk (2015)</h3>
             <ul>
-                <li>SQL injected through legacy form</li>
-                <li>157k records exposed</li>
+                <li>SQLi used to access customer data</li>
+                <li>~157,000 records exposed</li>
                 <li>£400,000 ICO fine</li>
             </ul>
 
             <h3>Sony Pictures (2011)</h3>
             <ul>
-                <li>Weak sanitisation → full DB dump</li>
+                <li>Poor sanitisation → full database dump</li>
                 <li>Millions of accounts leaked</li>
             </ul>
 
-            <h2 class="section-title">9. Knowledge Checks</h2>
+            <h2 class="section-title">11. Summary / Key Takeaways</h2>
             <ul>
-                <li>Why do parameterised queries stop SQLi?</li>
-                <li>What is the vulnerability in: <code>id = " . $_GET['id']</code>?</li>
-                <li>Which input is malicious? <code>1 OR 1=1</code></li>
-            </ul>
-
-            <h2 class="section-title">10. Reflection Questions</h2>
-            <ul>
-                <li>How would you design a secure SQL-based login?</li>
-                <li>What organisational failures cause SQLi?</li>
-                <li>How does SQLi relate to defence-in-depth?</li>
-            </ul>
-
-            <h2 class="section-title">11. Summary</h2>
-            <ul>
-                <li>SQLi abuses unsanitised input</li>
-                <li>Parameterised queries prevent SQLi</li>
-                <li>SQLi causes real-world breaches</li>
-                <li>Secure coding stops SQLi entirely</li>
+                <li>SQL Injection exploits unsanitised user input</li>
+                <li>It remains a high‑impact web vulnerability</li>
+                <li>Parameterised queries are the most effective mitigation</li>
+                <li>Major breaches have occurred due to SQLi</li>
+                <li>Secure coding practices prevent SQLi entirely</li>
             </ul>
 
         </div>
     </div>
 </div>
-
 
 <script>
 function updateSQL() {
