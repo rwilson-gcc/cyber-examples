@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SQL Injection Demo (With Learning Sidebar)</title>
+<title>SQL Injection Demo (With Teaching Content)</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -17,17 +17,24 @@
         min-height: 100vh;
     }
 
-    /* ------ LEFT SIDEBAR ------ */
+    /* Sidebar */
     .sidebar {
         width: 280px;
         background: #242424;
         padding: 25px;
         border-right: 2px solid #333;
+        overflow-y: auto;
+        max-height: 100vh;
     }
 
     .sidebar h2 {
         color: #61dafb;
         margin-bottom: 15px;
+    }
+
+    .sidebar h3 {
+        margin-top: 18px;
+        color: #ffa657;
     }
 
     .sidebar p {
@@ -39,14 +46,15 @@
         margin-left: 15px;
     }
 
-    /* ------ RIGHT CONTENT ------ */
+    /* Main content */
     .content {
         flex: 1;
         padding: 40px;
+        overflow-y: auto;
     }
 
     .container {
-        width: 600px;
+        width: 700px;
         margin: auto;
         background: #2b2b2b;
         padding: 25px;
@@ -67,7 +75,7 @@
     input {
         width: 100%;
         padding: 12px;
-        margin: 8px 0 18px 0;
+        margin: 8px 0 18px;
         border: none;
         border-radius: 5px;
         background: #3b3b3b;
@@ -85,6 +93,7 @@
         border: none;
         border-radius: 8px;
         cursor: pointer;
+        margin-bottom: 10px;
     }
 
     button:hover {
@@ -109,41 +118,56 @@
 
     .good { color: #9fdb9f; }
     .bad { color: #ff6f6f; }
+
+    /* Teaching content */
+    .teaching-section {
+        background: #2b2b2b;
+        padding: 25px;
+        border-radius: 12px;
+        margin-top: 40px;
+    }
+
+    pre {
+        background: #111;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: "Courier New", monospace;
+    }
+
 </style>
 </head>
+
 <body>
 
 <div class="layout">
 
-    <!-- LEFT LEARNING NUGGET SIDEBAR -->
+    <!-- LEFT SIDEBAR -->
     <div class="sidebar">
         <h2>Security Insight: SQL Injection</h2>
-        <p><strong>SQL Injection</strong> is a type of attack where an attacker inserts 
-        malicious SQL code into an application's input fields to manipulate the database query.</p>
 
-        <p>This works because the application <strong>directly inserts user input</strong> into 
-        an SQL query without validation or sanitisation.</p>
+        <p><strong>SQL Injection</strong> occurs when an attacker inserts malicious SQL into an application's inputs to manipulate or control the database.</p>
 
         <h3>Why It Happens</h3>
         <ul>
-            <li>Unsanitised input</li>
-            <li>String‑built SQL queries</li>
-            <li>No use of parameterised statements</li>
+            <li>Unsanitised user input</li>
+            <li>String-built SQL queries</li>
+            <li>No input validation</li>
+            <li>Lack of parameterised queries</li>
         </ul>
 
-        <h3>How To Prevent It</h3>
+        <h3>How to Prevent It</h3>
         <ul>
-            <li>Use prepared statements / parameterised queries</li>
-            <li>Validate and sanitise all input</li>
-            <li>Use least-privilege database accounts</li>
-            <li>Avoid building SQL by string concatenation</li>
+            <li>Use prepared statements</li>
+            <li>Validate and sanitise input</li>
+            <li>Use least-privilege DB accounts</li>
+            <li>Avoid string concatenation in SQL</li>
         </ul>
-
-        <p>This demo shows how vulnerable SQL behaves and how attackers can bypass login systems.</p>
     </div>
 
     <!-- RIGHT MAIN CONTENT -->
     <div class="content">
+
         <div class="container">
 
             <h1>SQL Injection Demo</h1>
@@ -164,20 +188,156 @@
 
             <div class="section-title">Database Dump (Only if Injected)</div>
             <div id="dbDump" class="db-box"></div>
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!--     FULL TEACHING CONTENT (Sections 1–11) BELOW DEMO      -->
+        <!-- ========================================================= -->
+
+        <div class="teaching-section">
+
+            <h2 class="section-title">1. Learning Outcomes</h2>
+            <ul>
+                <li>Explain SQL Injection and why it happens</li>
+                <li>Analyse how unsanitised inputs can be abused</li>
+                <li>Perform a controlled SQL injection attack</li>
+                <li>Describe SQLi impact on organisations</li>
+                <li>Apply secure coding techniques</li>
+                <li>Evaluate real-world SQLi incidents</li>
+            </ul>
+
+            <h2 class="section-title">2. Introduction to SQL Injection</h2>
+            <p>SQL Injection allows attackers to modify database queries by injecting malicious SQL into application inputs.</p>
+            <p>Consequences include:</p>
+            <ul>
+                <li>Authentication bypass</li>
+                <li>Accessing or deleting data</li>
+                <li>Privilege escalation</li>
+                <li>Full system compromise</li>
+            </ul>
+
+            <h2 class="section-title">3. Why SQL Injection Happens</h2>
+
+            <h3>3.1 Unsanitised User Input</h3>
+            <p>Applications trust user input without validation.</p>
+
+            <h3>3.2 String-built SQL Queries</h3>
+            <pre>
+query = "SELECT * FROM users WHERE username = '" + user_input + "';";
+            </pre>
+
+            <h3>3.3 Lack of Parameterised Queries</h3>
+            <p>Allows attackers to modify the SQL structure.</p>
+
+            <h3>3.4 Over-privileged Accounts</h3>
+            <p>Increases the damage caused by SQLi.</p>
+
+            <h2 class="section-title">4. Attack Flow Diagram</h2>
+            <pre>
+User Input
+    ↓
+Application Form
+    ↓
+String-Concatenated SQL Query
+    ↓
+Database Executes Malicious SQL
+    ↓
+Attacker Gains Unauthorised Access
+            </pre>
+
+            <h2 class="section-title">5. Demo Scenario</h2>
+            <h3>Intended Query</h3>
+            <pre>
+SELECT * FROM users
+WHERE username = 'USER_INPUT'
+AND password = 'PASS_INPUT';
+            </pre>
+
+            <h3>Example Input</h3>
+            <pre>
+admin' --
+            </pre>
+
+            <h3>Resulting Malicious Query</h3>
+            <pre>
+SELECT * FROM users
+WHERE username = 'admin' --'
+AND password = 'anything';
+            </pre>
+
+            <h2 class="section-title">6. Vulnerable vs Secure Code Examples</h2>
+
+            <h3>❌ Insecure Example</h3>
+            <pre>
+query = "SELECT * FROM users WHERE username = '" + user_input + "';";
+cursor.execute(query);
+            </pre>
+
+            <h3>✅ Secure Example (Parameterised)</h3>
+            <pre>
+query = "SELECT * FROM users WHERE username = %s;";
+cursor.execute(query, (user_input,));
+            </pre>
+
+            <h2 class="section-title">7. Prevention</h2>
+            <ul>
+                <li>Use parameterised queries</li>
+                <li>Input validation and sanitisation</li>
+                <li>Least privilege DB accounts</li>
+                <li>Avoid dynamic SQL</li>
+                <li>Use WAFs</li>
+            </ul>
+
+            <h2 class="section-title">8. Case Studies</h2>
+
+            <h3>TalkTalk (2015)</h3>
+            <ul>
+                <li>SQL injected through legacy form</li>
+                <li>157k records exposed</li>
+                <li>£400,000 ICO fine</li>
+            </ul>
+
+            <h3>Sony Pictures (2011)</h3>
+            <ul>
+                <li>Weak sanitisation → full DB dump</li>
+                <li>Millions of accounts leaked</li>
+            </ul>
+
+            <h2 class="section-title">9. Knowledge Checks</h2>
+            <ul>
+                <li>Why do parameterised queries stop SQLi?</li>
+                <li>What is the vulnerability in: <code>id = " . $_GET['id']</code>?</li>
+                <li>Which input is malicious? <code>1 OR 1=1</code></li>
+            </ul>
+
+            <h2 class="section-title">10. Reflection Questions</h2>
+            <ul>
+                <li>How would you design a secure SQL-based login?</li>
+                <li>What organisational failures cause SQLi?</li>
+                <li>How does SQLi relate to defence-in-depth?</li>
+            </ul>
+
+            <h2 class="section-title">11. Summary</h2>
+            <ul>
+                <li>SQLi abuses unsanitised input</li>
+                <li>Parameterised queries prevent SQLi</li>
+                <li>SQLi causes real-world breaches</li>
+                <li>Secure coding stops SQLi entirely</li>
+            </ul>
 
         </div>
     </div>
-
 </div>
+
 
 <script>
 function updateSQL() {
     const u = document.getElementById("username").value;
     const p = document.getElementById("password").value;
 
-    const sql = 
-`SELECT * FROM users 
-WHERE username = '${u}' 
+    const sql = `SELECT * FROM users
+WHERE username = '${u}'
 AND password = '${p}';`;
 
     document.getElementById("sqlOutput").innerText = sql;
@@ -190,37 +350,29 @@ function fakeLogin() {
     const resultBox = document.getElementById("result");
     const dbDump = document.getElementById("dbDump");
 
-    // Reset → clean output every login
     resultBox.innerHTML = "";
     dbDump.innerHTML = "";
 
-    // Fake correct login
     const validUser = "admin";
     const validPass = "password123";
 
-    // Simple SQL injection detection
-    const injection = ["' OR '1'='1", "' OR 1=1 --", "' OR '1'='1' --"];
+    const injectionPatterns = ["' OR '1'='1", "' OR 1=1 --", "' OR '1'='1' --"];
 
-    const isInjected = injection.some(payload => 
-        u.includes(payload) || p.includes(payload)
-    );
+    const isInjected = injectionPatterns.some(x => u.includes(x) || p.includes(x));
 
     if (isInjected) {
         resultBox.innerHTML = "<span class='bad'>🔥 SQL Injection Successful — Bypassed Login</span>";
-        dbDump.innerHTML =
-`[FAKE USER DATABASE]
+        dbDump.innerHTML = `[FAKE USER DATABASE]
 
 id | username | password
---------------------------------
+----------------------------
 1  | admin    | password123
 2  | bob      | hunter2
 3  | alice    | qwerty
-4  | test     | letmein
-`;
+4  | test     | letmein`;
         return;
     }
 
-    // Normal login check
     if (u === validUser && p === validPass) {
         resultBox.innerHTML = "<span class='good'>✔ Login Successful</span>";
     } else {
