@@ -6,7 +6,6 @@
 
 <style>
     * { box-sizing: border-box; }
-
     body {
         font-family: Arial, sans-serif;
         background: #1e1e1e;
@@ -29,32 +28,13 @@
         max-height: 100vh;
     }
 
-    .sidebar h2 {
-        color: #61dafb;
-        margin-bottom: 15px;
-    }
-
-    .sidebar h3 {
-        margin-top: 18px;
-        color: #ffa657;
-    }
-
-    .sidebar p {
-        line-height: 1.45;
-        margin-bottom: 10px;
-    }
-
-    .sidebar ul {
-        margin-left: 18px;
-        margin-bottom: 10px;
-    }
+    .sidebar h2 { color: #61dafb; margin-bottom: 15px; }
+    .sidebar h3 { margin-top: 18px; color: #ffa657; }
+    .sidebar p { line-height: 1.45; margin-bottom: 10px; }
+    .sidebar ul { margin-left: 18px; margin-bottom: 10px; }
 
     /* MAIN CONTENT ----------------------------------------------- */
-    .content {
-        flex: 1;
-        padding: 40px;
-    }
-
+    .content { flex: 1; padding: 40px; }
     .container {
         width: 850px;
         margin: auto;
@@ -137,7 +117,7 @@
     }
 
     .good { color: #9fdb9f; }
-    .bad { color: #ff6f6f; }
+    .bad  { color: #ff6f6f; }
 
     #log {
         background: #000;
@@ -156,6 +136,23 @@
         font-size: 0.9em;
         opacity: 0.9;
     }
+
+    /* TEACHING CONTENT BELOW DEMO */
+    .teaching-section {
+        background:#2b2b2b;
+        padding:25px;
+        border-radius:12px;
+        margin-top:40px;
+    }
+    pre {
+        background:#111;
+        padding:12px;
+        border-radius:8px;
+        white-space:pre-wrap;
+        overflow-x:auto;
+        font-family:"Courier New", monospace;
+    }
+
 </style>
 </head>
 
@@ -167,48 +164,39 @@
     <div class="sidebar">
         <h2>Security Insight: Cookie Tampering</h2>
 
-        <p>Cookie tampering occurs when a website stores sensitive data (like user roles) inside a cookie and trusts it without checking if it was changed.</p>
+        <p>Cookie tampering occurs when a website stores sensitive data (like user roles) inside a cookie
+        and trusts it without checking if it was changed.</p>
 
         <h3>What’s Going On?</h3>
-        <p>Web browsers let users modify cookies easily using developer tools. If the server blindly trusts cookie values, attackers can escalate privileges.</p>
+        <p>Browsers allow users to edit cookies freely. If a server trusts those cookies without validation,
+        attackers can escalate privileges.</p>
 
-        <p>For example, if a site stores:</p>
-        <p><code>role=user</code></p>
-        <p>an attacker can change it to:</p>
-        <p><code>role=admin</code></p>
-
-        <p>If the server does not verify the cookie, the attacker becomes an admin.</p>
+        <p>Example:</p>
+        <p><code>role=user</code> → attacker modifies → <code>role=admin</code></p>
 
         <h3>Why It’s Important</h3>
         <ul>
             <li>Privilege escalation</li>
-            <li>Accessing admin dashboards</li>
-            <li>Unauthorised actions</li>
-            <li>Changing other users' data</li>
+            <li>Gaining admin dashboards</li>
+            <li>Editing other users’ data</li>
+            <li>Bypassing authorisation controls</li>
         </ul>
 
-        <h3>Understanding Signed Cookies</h3>
-        <p>A signed cookie includes a <strong>signature</strong> created using a secret key known only to the server.</p>
+        <h3>How Signed Cookies Help</h3>
+        <p>A signed cookie includes a server‑generated signature. If modified, the signature fails.</p>
 
-        <p>If the cookie is modified, the signature no longer matches. The server rejects the request.</p>
-
-        <h3>How This Demo Works</h3>
+        <h3>How To Prevent Tampering</h3>
         <ul>
-            <li><strong>Unsigned mode:</strong> attacker can change the cookie freely</li>
-            <li><strong>Signed mode:</strong> cookie includes a signature to prevent tampering</li>
-        </ul>
-
-        <h3>How To Prevent Cookie Tampering</h3>
-        <ul>
-            <li>Use signed cookies (HMAC)</li>
-            <li>Use server-side sessions</li>
-            <li>Do not store trust-critical data client-side</li>
-            <li>Enable HttpOnly, Secure, SameSite where relevant</li>
+            <li>Use HMAC‑signed cookies</li>
+            <li>Use server-side session storage</li>
+            <li>Avoid storing trust‑critical data client‑side</li>
+            <li>Secure/HttpOnly/SameSite attributes</li>
         </ul>
     </div>
 
     <!-- MAIN CONTENT --------------------------------------------- -->
     <div class="content">
+
         <div class="container">
 
             <h1>Cookie Tampering Demo</h1>
@@ -221,6 +209,7 @@
             <div id="modeInfo" class="info-box"></div>
 
             <div class="row">
+
                 <!-- Client Cookie Panel -->
                 <div class="panel">
                     <span class="pill">Client Cookie</span>
@@ -244,8 +233,123 @@
                     <div class="section-title">Server Log</div>
                     <div id="log"></div>
                 </div>
+
             </div>
         </div>
+
+        <!-- ===================================================== -->
+        <!-- TEACHING SECTION (below demo)                         -->
+        <!-- ===================================================== -->
+        <div class="teaching-section">
+
+            <h2 class="section-title">1. Learning Outcomes</h2>
+            <ul>
+                <li>Explain what cookie tampering is</li>
+                <li>Identify insecure client‑side trust patterns</li>
+                <li>Perform a safe cookie tampering demonstration</li>
+                <li>Describe signed cookies and how they prevent tampering</li>
+                <li>Apply secure storage patterns for session and role data</li>
+            </ul>
+
+            <h2 class="section-title">2. Introduction to Cookie Tampering</h2>
+            <p>
+                Cookie tampering happens when applications store important security values (like roles, access levels, or flags)
+                inside client‑side cookies and then trust them without verification.
+                Attackers can open browser developer tools, modify the cookie, and send it back to the server.
+            </p>
+
+            <p>Common examples include:</p>
+            <ul>
+                <li><code>role=user</code> → attacker edits → <code>role=admin</code></li>
+                <li><code>paid=false</code> → edited to → <code>paid=true</code></li>
+                <li><code>tier=basic</code> → changed to → <code>tier=premium</code></li>
+            </ul>
+
+            <h2 class="section-title">3. Why Cookie Tampering Happens</h2>
+
+            <h3>3.1 Trusting Client-Side Data</h3>
+            <p>Anything stored client‑side (cookies, localStorage, sessionStorage) can be modified by the user.</p>
+
+            <h3>3.2 Lack of Cookie Integrity Checking</h3>
+            <p>If the server never validates the cookie, any modified value appears legitimate.</p>
+
+            <h3>3.3 Storing Roles or Permissions in Cookies</h3>
+            <p>
+                Role-based access control must be enforced server-side.
+                If “admin=true” is stored in a cookie without validation, attackers simply flip it.
+            </p>
+
+            <h2 class="section-title">4. Attack Flow Diagram</h2>
+            <pre>
+User reads/modifies cookie via DevTools
+            ↓
+Sends forged cookie to server
+            ↓
+Server trusts cookie blindly
+            ↓
+Attacker gains elevated privileges
+            </pre>
+
+            <h2 class="section-title">5. Demo Scenario (Explanation)</h2>
+
+            <h3>Unsigned Mode</h3>
+            <pre>
+role=admin
+signature= (none)
+→ Server trusts the role and grants admin access
+            </pre>
+
+            <h3>Signed Mode</h3>
+            <pre>
+role=admin
+signature=HMAC(role, secret)
+→ If role changes, signature becomes invalid → Access denied
+            </pre>
+
+            <h2 class="section-title">6. Vulnerable vs Secure Examples</h2>
+            <h3>❌ Vulnerable</h3>
+            <pre>
+cookie = "role=" + roleFromUser;
+if (cookie.role === "admin") allowAccess();
+            </pre>
+
+            <h3>✅ Secure (Signed Cookies)</h3>
+            <pre>
+cookie = {
+   role: "user",
+   sig: HMAC("user", secret)
+};
+if (!verifySignature(cookie)) deny();
+            </pre>
+
+            <h3>Even More Secure: Server-Side Sessions</h3>
+            <pre>
+session.user = "admin"; // stored server-side only
+client gets only a session ID
+            </pre>
+
+            <h2 class="section-title">7. Real-World Case Studies</h2>
+
+            <h3>1. Steam (Early 2010s)</h3>
+            <p>Unsigned cookies allowed tampering with user preferences and settings.</p>
+
+            <h3>2. Old PHP Apps (Common)</h3>
+            <p>Roles stored in plain cookies led to privilege escalation.</p>
+
+            <h3>3. E-commerce Sites</h3>
+            <p>Attackers modified “paid=false → paid=true” to access premium features.</p>
+
+            <h2 class="section-title">8. Summary / Key Takeaways</h2>
+            <ul>
+                <li>Clients control cookies — never trust them without verification</li>
+                <li>Signed cookies prevent modification attacks</li>
+                <li>Do not store roles or permissions client-side</li>
+                <li>Server-side session storage is the safest pattern</li>
+                <li>Security attributes (HttpOnly, Secure, SameSite) further protect cookies</li>
+            </ul>
+
+        </div>
+
     </div>
 </div>
 
@@ -253,7 +357,7 @@
 // Simulated secret for signing
 const SECRET = "server-secret";
 
-// Fake "HMAC" (for teaching only)
+// Fake "HMAC" (teaching only)
 function fakeSign(data) {
     return btoa(data + "|" + SECRET);
 }
@@ -261,7 +365,6 @@ function fakeSign(data) {
 function refreshSignature() {
     const signed = document.getElementById("signedMode").checked;
     const role = document.getElementById("role").value.trim();
-
     document.getElementById("sig").value = signed ? fakeSign(role) : "";
 }
 
@@ -277,15 +380,16 @@ function updateModeInfo() {
     if (signed) {
         info.innerHTML = `
             <strong>Signed Mode Enabled:</strong><br>
-            The server verifies the signature. If the cookie is changed, the
-            signature will not match and the request will be rejected.
+            The server verifies the signature. If the cookie is modified,
+            the signature will not match and the request will be rejected.
         `;
         document.getElementById("sig").setAttribute("readonly", "true");
     } else {
         info.innerHTML = `
             <strong>Unsigned Mode (Insecure):</strong><br>
-            The server blindly trusts the cookie. Changing <code>role=user</code>
-            to <code>role=admin</code> gives full access.
+            The server blindly trusts the cookie.
+            Changing <code>role=user</code> to <code>role=admin</code>
+            gives full access.
         `;
         document.getElementById("sig").removeAttribute("readonly");
         document.getElementById("sig").value = "";
@@ -303,10 +407,14 @@ function applyCookie() {
     let log = "";
     let allowed = false;
 
-    log += `Received cookie:\nrole=${role}\nsignature=${sig || "(none)"}\n\n`;
+    log += `Received cookie:
+role=${role}
+signature=${sig || "(none)"}
+
+`;
 
     if (!signed) {
-        log += "No signature validation.\nCookie trusted.\n";
+        log += "Unsigned mode: trusting cookie.\n";
         allowed = (role === "admin");
     } else {
         const expected = fakeSign(role);
@@ -316,15 +424,15 @@ function applyCookie() {
             log += "Signature valid.\n";
             allowed = (role === "admin");
         } else {
-            log += "❌ Signature mismatch — cookie tampered with.\n";
+            log += "Signature mismatch — cookie tampered.\n";
             allowed = false;
         }
     }
 
     document.getElementById("access").innerHTML =
         allowed
-            ? `<span class="good">✔ Access granted (admin)</span>`
-            : `<span class="bad">❌ Access denied</span>`;
+            ? `<span class="good">✔ Access Granted (Admin)</span>`
+            : `<span class="bad">❌ Access Denied</span>`;
 
     document.getElementById("log").textContent = log;
 }
