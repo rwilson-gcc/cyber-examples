@@ -4,196 +4,244 @@
 <meta charset="UTF-8">
 <title>Security Insight: XSS (Comments Demo)</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #1e1e1e;
-        color: #f0f0f0;
-        margin: 0;
-        padding: 0;
-    }
+  body{
+    font-family: Arial, sans-serif;
+    background:#1e1e1e;
+    color:#f0f0f0;
+    margin:0;
+    padding:0;
+  }
+  .layout{ display:flex; min-height:100vh; }
 
-    .layout {
-        display: flex;
-        min-height: 100vh;
-    }
+  /* Sidebar */
+  .sidebar{
+    width:280px;
+    background:#242424;
+    padding:25px;
+    border-right:2px solid #333;
+    overflow-y:auto;
+    max-height:100vh;
+  }
+  .sidebar h2{ color:#61dafb; margin-bottom:15px; }
+  .sidebar h3{ margin-top:18px; color:#ffa657; }
+  .sidebar p{ line-height:1.4em; margin-bottom:15px; }
+  .sidebar ul{ margin-left:15px; padding-left:10px; }
 
-    /* Sidebar */
-    .sidebar {
-        width: 280px;
-        background: #242424;
-        padding: 25px;
-        border-right: 2px solid #333;
-    }
-    .sidebar h2 {
-        color: #61dafb;
-        margin-bottom: 15px;
-    }
-    .sidebar p {
-        line-height: 1.4em;
-        margin-bottom: 15px;
-    }
-    .sidebar ul {
-        margin-left: 15px;
-        padding-left: 10px;
-    }
+  /* Main content */
+  .content{ flex:1; padding:40px; }
+  .container{
+    width:700px;
+    margin:auto;
+    background:#2b2b2b;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 0 20px rgba(0,0,0,0.6);
+  }
+  h1{ text-align:center; margin-bottom:25px; color:#61dafb; }
 
-    /* Main content */
-    .content {
-        flex: 1;
-        padding: 40px;
-    }
+  label{ display:block; margin-bottom:8px; }
+  textarea{
+    width:100%; height:120px; padding:12px;
+    background:#3b3b3b; border:none; border-radius:5px; color:#fff; font-size:1em;
+  }
+  button{
+    width:100%; padding:14px; background:#61dafb; color:#000; font-size:1.1em;
+    font-weight:bold; border:none; border-radius:8px; cursor:pointer; margin-top:12px;
+  }
+  button:hover{ background:#52c4e8; }
 
-    .container {
-        width: 700px;
-        margin: auto;
-        background: #2b2b2b;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.6);
-    }
+  .section-title{ margin-top:25px; font-size:1.2em; color:#ffa657; }
 
-    h1 {
-        text-align: center;
-        margin-bottom: 25px;
-        color: #61dafb;
-    }
+  .comment{
+    background:#1a1a1a; border-left:4px solid #61dafb; padding:10px; margin-top:15px;
+    border-radius:6px; white-space:pre-wrap;
+  }
 
-    textarea {
-        width: 100%;
-        height: 120px;
-        padding: 12px;
-        background: #3b3b3b;
-        border: none;
-        border-radius: 5px;
-        color: white;
-        font-size: 1em;
-    }
+  .warning{ color:#ff6f6f; margin-top:10px; font-weight:bold; }
 
-    button {
-        width: 100%;
-        padding: 14px;
-        background: #61dafb;
-        color: #000;
-        font-size: 1.1em;
-        font-weight: bold;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        margin-top: 12px;
-    }
-    button:hover {
-        background: #52c4e8;
-    }
-
-    .section-title {
-        margin-top: 25px;
-        font-size: 1.2em;
-        color: #ffa657;
-    }
-
-    .comment {
-        background: #1a1a1a;
-        border-left: 4px solid #61dafb;
-        padding: 10px;
-        margin-top: 15px;
-        border-radius: 6px;
-        white-space: pre-wrap;
-    }
-
-    .warning {
-        color: #ff6f6f;
-        margin-top: 10px;
-        font-weight: bold;
-    }
-
+  /* Teaching content (below demo) */
+  .teaching-section{
+    background:#2b2b2b; padding:25px; border-radius:12px; margin-top:40px;
+  }
+  pre{
+    background:#111; padding:15px; border-radius:8px; overflow-x:auto;
+    font-family:"Courier New", monospace; white-space:pre-wrap;
+  }
 </style>
 </head>
 <body>
-
 <div class="layout">
 
-    <!-- LEFT SIDEBAR -->
-    <div class="sidebar">
-        <h2>Security Insight: XSS</h2>
-        <p><strong>Cross-Site Scripting (XSS)</strong> occurs when untrusted user input is injected into a web page and interpreted as HTML/JavaScript.</p>
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar">
+    <h2>Security Insight: XSS</h2>
+    <p><strong>Cross‑Site Scripting (XSS)</strong> occurs when untrusted user input is injected into a web page and interpreted as HTML/JavaScript.</p>
 
-        <h3>Why It Happens</h3>
-        <ul>
-            <li>Unsafe rendering of user input</li>
-            <li>Using <code>innerHTML</code> with untrusted data</li>
-            <li>Lack of escaping / output encoding</li>
-        </ul>
+    <h3>Why It Happens</h3>
+    <ul>
+      <li>Unsafe rendering of user input</li>
+      <li>Using <code>innerHTML</code> with untrusted data</li>
+      <li>Lack of escaping / output encoding</li>
+    </ul>
 
-        <h3>How To Prevent It</h3>
-        <ul>
-            <li>Use <code>textContent</code> instead of <code>innerHTML</code></li>
-            <li>Escape all user-supplied content</li>
-            <li>Validate inputs and strip dangerous tags</li>
-            <li>Apply Content Security Policy (CSP)</li>
-        </ul>
+    <h3>How To Prevent It</h3>
+    <ul>
+      <li>Use <code>textContent</code> instead of <code>innerHTML</code></li>
+      <li>Escape all user‑supplied content</li>
+      <li>Validate inputs and strip dangerous tags</li>
+      <li>Apply Content Security Policy (CSP)</li>
+    </ul>
 
-        <p>This demo simulates how a comments system detects XSS attempts.</p>
+    <p>This demo simulates how a comments system detects XSS attempts.</p>
+  </div>
+
+  <!-- RIGHT CONTENT -->
+  <div class="content">
+    <div class="container">
+
+      <h1>XSS Demo — Comment System</h1>
+
+      <label for="commentBox">Add a Comment:</label>
+      <textarea id="commentBox" placeholder="Try typing: <script>alert('XSS')</script>"></textarea>
+
+      <button onclick="postComment()">Post Comment</button>
+
+      <div id="warning" class="warning"></div>
+
+      <div class="section-title">Comments</div>
+      <div id="comments"></div>
     </div>
 
-    <!-- RIGHT CONTENT -->
-    <div class="content">
-        <div class="container">
+    <!-- ========================================================= -->
+    <!--  FULL TEACHING MODULE (below the demo)                    -->
+    <!-- ========================================================= -->
+    <div class="teaching-section">
+      <h2 class="section-title">1. Learning Outcomes</h2>
+      <ul>
+        <li>Explain what XSS is and why it occurs</li>
+        <li>Recognise unsafe rendering patterns that lead to XSS</li>
+        <li>Perform a safe XSS demonstration in a controlled environment</li>
+        <li>Describe the impact of XSS on users and organisations</li>
+        <li>Apply output encoding and safer APIs to prevent XSS</li>
+      </ul>
 
-            <h1>XSS Demo — Comment System</h1>
+      <h2 class="section-title">2. Introduction to XSS</h2>
+      <p>
+        XSS is where an attacker injects script content into web pages viewed by other users.
+        If an application renders untrusted input as HTML (e.g., via <code>innerHTML</code>) without encoding, the browser executes it as code.
+      </p>
+      <p>Consequences include:</p>
+      <ul>
+        <li>Session theft (cookie access if not protected by HttpOnly)</li>
+        <li>Credential phishing / UI redress</li>
+        <li>Defacement or malicious redirects</li>
+        <li>Running attacker‑controlled JavaScript in the victim’s browser</li>
+      </ul>
 
-            <label for="commentBox">Add a Comment:</label>
-            <textarea id="commentBox" placeholder="Try typing: <script>alert('XSS')</script>"></textarea>
+      <h2 class="section-title">3. Why XSS Happens</h2>
+      <h3>3.1 Unsafe Injection Sinks</h3>
+      <p>Rendering user input with <code>innerHTML</code>, setting <code>outerHTML</code>, or using <code>document.write</code> can interpret tags and scripts.</p>
 
-            <button onclick="postComment()">Post Comment</button>
+      <h3>3.2 Missing Output Encoding</h3>
+      <p>Data should be encoded by context (HTML text, attribute, URL, JavaScript string). Failure leads to script interpretation.</p>
 
-            <div id="warning" class="warning"></div>
+      <h3>3.3 Event Handlers and URLs</h3>
+      <p>Attributes like <code>onerror=</code>, <code>onclick=</code>, or schemes like <code>javascript:</code> can execute code if not blocked.</p>
 
-            <div class="section-title">Comments</div>
-            <div id="comments"></div>
+      <h2 class="section-title">4. Attack Flow (Concept)</h2>
+      <pre>
+User Input
+    ↓
+Application renders as HTML (unsafe)
+    ↓
+Browser interprets tags and events as code
+    ↓
+Attacker’s JavaScript runs in other users' sessions
+      </pre>
 
-        </div>
+      <h2 class="section-title">5. Demo Scenario</h2>
+      <h3>Unsafe Payload Example</h3>
+      <pre>
+<script>alert('XSS')</script>
+      </pre>
+      <p>Other common patterns: event handlers or URLs:</p>
+      <pre>
+<img src=x onerror=alert(1)>
+<a href="javascript:alert(1)">click</a>
+      </pre>
+      <p><strong>In this demo:</strong> scripts never execute — we always escape output, and we only display warnings if a risky pattern is detected.</p>
+
+      <h2 class="section-title">6. Vulnerable vs Secure Examples</h2>
+      <h3>❌ Vulnerable</h3>
+      <pre>
+commentArea.innerHTML = userInput; // executes tags & events
+      </pre>
+      <h3>✅ Secure</h3>
+      <pre>
+commentArea.textContent = userInput; // render as text, not HTML
+      </pre>
+      <p>Additionally, encode output by context and consider a strict Content Security Policy (CSP) to reduce impact.</p>
+
+      <h2 class="section-title">7. Prevention Techniques</h2>
+      <ul>
+        <li>Render with <code>textContent</code> / safe DOM APIs</li>
+        <li>Encode output by context (HTML, attribute, JS, URL)</li>
+        <li>Strip or reject dangerous tags/attributes server‑side</li>
+        <li>Set security headers (e.g., CSP, X‑Content‑Type‑Options)</li>
+        <li>Use frameworks/libraries that auto‑escape by default</li>
+      </ul>
+
+      <h2 class="section-title">8. Real‑World Notes</h2>
+      <ul>
+        <li>Stored XSS (persisted in DB), Reflected XSS (via URL), DOM XSS (client‑side JS)</li>
+        <li>Many major breaches stem from templating mistakes and unsafe rendering</li>
+      </ul>
+
+      <h2 class="section-title">9. Summary / Key Takeaways</h2>
+      <ul>
+        <li>XSS executes attacker‑controlled JS in the victim’s browser</li>
+        <li>Unsafe sinks and missing encoding are the root cause</li>
+        <li>Use safe DOM APIs and output encoding; consider CSP</li>
+        <li>Always treat user input as untrusted</li>
+      </ul>
     </div>
-
+  </div>
 </div>
 
 <script>
 function postComment() {
-    const box = document.getElementById("commentBox");
-    const comments = document.getElementById("comments");
-    const warn = document.getElementById("warning");
+  const box = document.getElementById("commentBox");
+  const comments = document.getElementById("comments");
+  const warn = document.getElementById("warning");
 
-    const text = box.value.trim();
-    warn.textContent = "";
+  const text = box.value.trim();
+  warn.textContent = "";
+  if (!text) return;
 
-    if (!text) return;
+  // XSS detection patterns
+  const xssPatterns = [
+    /<script.*?>.*?<\/script>/gi,
+    /on\w+\s*=/gi,
+    /javascript:/gi
+  ];
+  const isXSS = xssPatterns.some(rx => rx.test(text));
+  if (isXSS) {
+    warn.textContent = "⚠️ XSS Attempt Detected! Your comment contained potentially dangerous script content.";
+  }
 
-    // XSS detection patterns
-    const xssPatterns = [
-        /<script.*?>.*?<\/script>/gi,
-        /on\w+=".*?"/gi,
-        /javascript:/gi
-    ];
+  // Always escape output (DO NOT render as HTML)
+  const safeHTML = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 
-    let isXSS = xssPatterns.some(rx => rx.test(text));
+  const comment = document.createElement("div");
+  comment.className = "comment";
+  comment.textContent = safeHTML; // safe rendering
+  comments.prepend(comment);
 
-    if (isXSS) {
-        warn.textContent = "⚠️ XSS Attempt Detected! Your comment contained potentially dangerous script content.";
-    }
-
-    // Always escape output
-    const safeHTML = text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-
-    const comment = document.createElement("div");
-    comment.className = "comment";
-    comment.textContent = safeHTML;
-
-    comments.prepend(comment);
-    box.value = "";
+  box.value = "";
 }
 </script>
-
 </body>
 </html>
