@@ -12,7 +12,11 @@
         color: #f0f0f0;
         margin: 0;
     }
-    .layout { display: flex; min-height: 100vh; }
+
+    .layout {
+        display: flex;
+        min-height: 100vh;
+    }
 
     /* SIDEBAR -------------------------------------------------- */
     .sidebar {
@@ -23,6 +27,7 @@
         overflow-y: auto;
         max-height: 100vh;
     }
+
     .sidebar h2 { color: #61dafb; margin-bottom: 15px; }
     .sidebar h3 { margin-top: 18px; color: #ffa657; }
     .sidebar p { line-height: 1.45em; margin-bottom: 10px; }
@@ -38,6 +43,7 @@
         border-radius: 12px;
         box-shadow: 0 0 20px rgba(0,0,0,0.6);
     }
+
     h1 {
         text-align: center;
         margin-bottom: 25px;
@@ -73,6 +79,7 @@
         cursor: pointer;
         margin-top: 10px;
     }
+
     button:hover { background: #52c4e8; }
 
     .panel {
@@ -91,7 +98,7 @@
     }
 
     .good { color: #9fdb9f; }
-    .bad { color: #ff6f6f; }
+    .bad  { color: #ff6f6f; }
 
     .highlight {
         background: #402020;
@@ -108,23 +115,38 @@
         font-size: 0.9em;
         opacity: 0.9;
     }
+
+    /* Teaching Section */
+    .teaching-section {
+        background: #2b2b2b;
+        padding: 25px;
+        border-radius: 12px;
+        margin-top: 40px;
+    }
+
+    pre {
+        background: #111;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: "Courier New", monospace;
+    }
 </style>
 </head>
 
 <body>
-
 <div class="layout">
 
     <!-- SIDEBAR ------------------------------------------------ -->
     <div class="sidebar">
         <h2>Security Insight: Command Injection</h2>
 
-        <p><strong>Command Injection</strong> happens when user input is passed directly into a system command without validation. This allows attackers to run additional commands on the server.</p>
+        <p><strong>Command Injection</strong> happens when user input is passed directly into a system command without validation. This allows attackers to execute unintended commands.</p>
 
         <h3>What’s Going On?</h3>
         <p>Unsafe code often looks like:</p>
         <p><code>exec("ping " + userInput)</code></p>
-        <p>If the attacker enters <code>; ls</code>, the server runs <strong>two commands</strong>:</p>
+        <p>If the attacker enters <code>; ls</code>, the server runs:</p>
         <p><code>ping 8.8.8.8; ls</code></p>
 
         <h3>Why It’s Important</h3>
@@ -136,40 +158,23 @@
             <li>Full system compromise</li>
         </ul>
 
-        <h3>Safe vs Unsafe Execution</h3>
-        <p><strong>Unsafe:</strong> The application builds a command string from user input.</p>
-        <p><strong>Safe:</strong> Use APIs that run commands <em>without the shell</em>, such as:</p>
+        <h3>How To Prevent It</h3>
         <ul>
-            <li>Node: <code>execFile()</code></li>
-            <li>Python: <code>subprocess.run(["ping", host])</code></li>
-            <li>Java: <code>ProcessBuilder</code></li>
-        </ul>
-
-        <h3>Simulated Attack Commands</h3>
-        <p>This demo recognises:</p>
-        <ul>
-            <li><code>ls</code> (list directory)</li>
-            <li><code>ip a</code> (network interfaces)</li>
-            <li><code>more</code></li>
-            <li><code>cat</code></li>
-        </ul>
-
-        <h3>How To Prevent Command Injection</h3>
-        <ul>
-            <li>Whitelist valid input</li>
-            <li>Use safe APIs rather than shell commands</li>
-            <li>Never concatenate user input into shell commands</li>
-            <li>Run servers with least privilege</li>
+            <li>Whitelist input</li>
+            <li>Use safe APIs instead of shell</li>
+            <li>Never concatenate untrusted input</li>
+            <li>Run with least privilege</li>
         </ul>
     </div>
 
     <!-- MAIN CONTENT ------------------------------------------ -->
     <div class="content">
         <div class="container">
-
             <h1>Command Injection Demo (Simulated)</h1>
 
-            <div class="info-box" id="modeInfo">Unsafe command execution mode.</div>
+            <div class="info-box" id="modeInfo">
+                Unsafe command execution mode.
+            </div>
 
             <div class="checkbox-row">
                 <input type="checkbox" id="safeMode">
@@ -182,14 +187,159 @@
             <button onclick="simulate()">Run (Simulated)</button>
 
             <div class="section-title">Constructed Command</div>
-            <div id="cmd" class="panel"></div>
+            <div id="cmd" class="panel">(nothing yet)</div>
 
             <div class="section-title">Result</div>
-            <div id="result" class="panel"></div>
+            <div id="result" class="panel">(no output)</div>
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!--  FULL TEACHING MODULE ADDED BELOW DEMO                   -->
+        <!-- ========================================================= -->
+
+        <div class="teaching-section">
+
+            <h2 class="section-title">1. Learning Outcomes</h2>
+            <ul>
+                <li>Explain what Command Injection is and how it works</li>
+                <li>Recognise insecure command execution patterns</li>
+                <li>Perform controlled command injection demonstrations safely</li>
+                <li>Describe real-world consequences of command injection attacks</li>
+                <li>Apply secure coding patterns using safe APIs</li>
+            </ul>
+
+            <h2 class="section-title">2. Introduction to Command Injection</h2>
+            <p>
+                Command Injection occurs when an application includes user-supplied data in a system-level command such as <code>ping</code>, <code>cat</code>, <code>ls</code>, or <code>ip</code>.
+                If the input is not validated, attackers can chain additional commands using separators like <code>;</code>, <code>&amp;&amp;</code>, <code>|</code>.
+            </p>
+
+            <p>Impact includes:</p>
+            <ul>
+                <li>Unrestricted file access</li>
+                <li>Data exfiltration</li>
+                <li>Privilege escalation</li>
+                <li>Total system compromise</li>
+            </ul>
+
+            <h2 class="section-title">3. Why Command Injection Happens</h2>
+
+            <h3>3.1 String-Built Shell Commands</h3>
+            <pre>
+exec("ping " + userInput)
+            </pre>
+
+            <p>Attackers can inject:</p>
+            <pre>
+8.8.8.8; ls
+            </pre>
+
+            <h3>3.2 Lack of Input Validation</h3>
+            <p>Attackers exploit characters the shell interprets:</p>
+            <ul>
+                <li><code>;</code></li>
+                <li><code>&&</code></li>
+                <li><code>||</code></li>
+                <li><code>|</code></li>
+                <li><code>`</code></li>
+            </ul>
+
+            <h3>3.3 Unsafe Shell Invocation APIs</h3>
+            <p>Functions such as:</p>
+            <ul>
+                <li><code>exec()</code></li>
+                <li><code>system()</code></li>
+                <li><code>shell_exec()</code></li>
+            </ul>
+            <p>…interpret user data as part of the command string.</p>
+
+
+            <h2 class="section-title">4. Attack Flow Diagram</h2>
+            <pre>
+User Input
+    ↓
+Application Accepts Argument
+    ↓
+String-Concatenated System Command
+    ↓
+Shell Interprets Extra Injected Commands
+    ↓
+Attacker Executes Arbitrary Commands
+            </pre>
+
+            <h2 class="section-title">5. Demo Scenario</h2>
+
+            <h3>Valid Command</h3>
+            <pre>
+ping -c 2 8.8.8.8
+            </pre>
+
+            <h3>Injected Command</h3>
+            <pre>
+8.8.8.8; ls
+            </pre>
+
+            <p>Shell runs:</p>
+            <pre>
+ping -c 2 8.8.8.8; ls
+            </pre>
+
+            <p>Attackers can escalate to:</p>
+            <pre>
+8.8.8.8 && cat secret.txt
+            </pre>
+
+
+            <h2 class="section-title">6. Vulnerable vs Secure Examples</h2>
+
+            <h3>❌ Vulnerable</h3>
+            <pre>
+exec("ping " + host)
+            </pre>
+
+            <h3>✅ Secure (Safe APIs)</h3>
+            <pre>
+execFile("ping", [host])
+subprocess.run(["ping", host])
+ProcessBuilder("ping", host)
+            </pre>
+
+            <p>These do not invoke a shell, so injected characters have no effect.</p>
+
+
+            <h2 class="section-title">7. Prevention Techniques</h2>
+            <ul>
+                <li>Whitelist valid input formats</li>
+                <li>Use safe APIs (argument arrays)</li>
+                <li>Avoid shell concatenation completely</li>
+                <li>Run services with least privilege</li>
+                <li>Use OS-level sandboxing where possible</li>
+            </ul>
+
+
+            <h2 class="section-title">8. Real-World Case Studies</h2>
+
+            <h3>GitLab CI Runners (2021)</h3>
+            <p>Improper sanitisation enabled remote command execution through crafted job names.</p>
+
+            <h3>Webmin (2019)</h3>
+            <p>A malicious update allowed attackers to inject commands via form parameters.</p>
+
+
+            <h2 class="section-title">9. Summary / Key Takeaways</h2>
+            <ul>
+                <li>Command Injection exploits unsafe system command execution</li>
+                <li>String concatenation into shell commands is dangerous</li>
+                <li>Attackers can chain commands to escalate impact</li>
+                <li>Safe APIs prevent the shell from interpreting input</li>
+                <li>Strong validation and least privilege significantly reduce risk</li>
+            </ul>
 
         </div>
     </div>
 </div>
+
 
 <script>
 function highlightDanger(str) {
@@ -204,49 +354,41 @@ function simulate() {
     const result = document.getElementById("result");
     const cmd = document.getElementById("cmd");
 
-    // Update mode info
     document.getElementById("modeInfo").innerHTML =
-        safe ?
-        "Safe mode enabled — input is validated and restricted." :
-        "Unsafe mode — user input goes directly into a shell command.";
+        safe
+            ? "✔ Safe mode enabled — input is validated and restricted."
+            : "⚠ Unsafe mode — raw input is passed into a shell command.";
 
     if (safe) {
-        // Safe execution path
         const constructed = `execFile("ping", ["${host}"])`;
         cmd.textContent = constructed;
 
         if (!/^[a-zA-Z0-9.\-]+$/.test(host)) {
             result.innerHTML = `<span class="bad">❌ Unsafe characters blocked.</span>`;
         } else {
-            result.innerHTML = `<span class="good">✔ Safe execution</span>
-            <br>Reply from ${host}: time=12ms (simulated)`;
+            result.innerHTML = `<span class="good">✔ Safe execution</span><br>Reply from ${host}: time=12ms (simulated)`;
         }
         return;
     }
 
-    // Unsafe mode simulation -------------------------------------
+    // ---------------- UNSAFE MODE ----------------
     const constructed = `ping -c 2 ${host}`;
     cmd.innerHTML = highlightDanger(constructed);
 
-    // detect injection operators
-    const separatorPattern = /(;;|&&|\|\||;|\||`|>|<)/;
-    const sepMatch = host.match(separatorPattern);
+    const sepPattern = /(;;|&&|\|\||;|\||`|>|<)/;
+    const sepMatch = host.match(sepPattern);
 
     if (!sepMatch) {
-        result.innerHTML = `<span class="good">✔ No injection detected</span>
-        <br>Pinging ${host}... (simulated)`;
+        result.innerHTML = `<span class="good">✔ No injection detected</span><br>Ping response from ${host}: time=12ms`;
         return;
     }
 
-    // extract injected command
-    const parts = host.split(separatorPattern);
-    // parts = [before, separator, after]
+    const parts = host.split(sepPattern);
     const injected = (parts[2] || "").trim().toLowerCase();
 
     let output = `<span class="bad">🔥 Command Injection Detected!</span><br><br>`;
     output += `Injected command → <strong>${injected}</strong><br><br>`;
 
-    // Simulated command outputs ----------------------------------
     if (injected === "ls") {
         output += `Simulated Directory Listing:
 /home/student/
@@ -257,8 +399,7 @@ function simulate() {
   notes.md
   secret.txt`;
     }
-
-    else if (injected === "ip a" || injected === "ip a") {
+    else if (injected === "ip a") {
         output += `Simulated Network Interfaces:
 1: lo: <LOOPBACK,UP>
     inet 127.0.0.1/8
@@ -266,18 +407,16 @@ function simulate() {
     inet 192.168.1.23/24
     inet6 fe80::abcd:1234:5678/64`;
     }
-
     else if (injected === "more secret.txt" || injected === "cat secret.txt") {
         output += `Simulated File Contents (secret.txt):
 TOP SECRET
-------------
-This is a classified system file.
+--------------------------------
+This is a classified file.
 Property of ACME Secure Systems.
-Do NOT share this with anyone.`;
+Do NOT distribute.`;
     }
-
     else {
-        output += `(Unknown injected command — simulated)`
+        output += `(Unknown injected command — simulated)`;
     }
 
     result.innerHTML = output;
