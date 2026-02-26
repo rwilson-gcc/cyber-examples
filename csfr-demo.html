@@ -6,7 +6,6 @@
 
 <style>
     * { box-sizing: border-box; }
-
     body {
         font-family: Arial, sans-serif;
         background: #1e1e1e;
@@ -25,37 +24,16 @@
         background: #242424;
         padding: 25px;
         border-right: 2px solid #333;
-        /* Scroll if content is tall */
         overflow-y: auto;
         max-height: 100vh;
     }
-
-    .sidebar h2 {
-        color: #61dafb;
-        margin-bottom: 15px;
-    }
-
-    .sidebar h3 {
-        margin-top: 18px;
-        color: #ffa657;
-    }
-
-    .sidebar p {
-        line-height: 1.45;
-        margin-bottom: 10px;
-    }
-
-    .sidebar ul {
-        margin-left: 18px;
-        margin-bottom: 10px;
-    }
+    .sidebar h2 { color: #61dafb; margin-bottom: 15px; }
+    .sidebar h3 { margin-top: 18px; color: #ffa657; }
+    .sidebar p { line-height: 1.45; margin-bottom: 10px; }
+    .sidebar ul { margin-left: 18px; margin-bottom: 10px; }
 
     /* MAIN CONTENT ----------------------------------------------- */
-    .content {
-        flex: 1;
-        padding: 40px;
-    }
-
+    .content { flex: 1; padding: 40px; }
     .container {
         width: 850px;
         max-width: 100%;
@@ -113,10 +91,7 @@
         cursor: pointer;
         margin: 10px 0;
     }
-
-    button:hover {
-        background: #52c4e8;
-    }
+    button:hover { background: #52c4e8; }
 
     .row {
         display: flex;
@@ -149,7 +124,7 @@
     }
 
     .good { color: #9fdb9f; }
-    .bad { color: #ff6f6f; }
+    .bad  { color: #ff6f6f; }
 
     #serverLog {
         white-space: pre-wrap;
@@ -159,6 +134,22 @@
         border-radius: 8px;
         margin-top: 10px;
     }
+
+    /* Teaching section below demo */
+    .teaching-section {
+        margin-top: 40px;
+        padding: 25px;
+        background: #2b2b2b;
+        border-radius: 12px;
+    }
+    pre {
+        background: #111;
+        padding: 12px;
+        border-radius: 8px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        font-family: "Courier New", monospace;
+    }
 </style>
 </head>
 
@@ -166,71 +157,47 @@
 
 <div class="layout">
 
-    <!-- SIDEBAR WITH CLARIFIED EXPLANATION + SCROLL --------------- -->
+    <!-- SIDEBAR -------------------------------------------------- -->
     <div class="sidebar">
         <h2>Security Insight: CSRF</h2>
 
         <p><strong>Cross‑Site Request Forgery (CSRF)</strong> is an attack where a user is tricked into performing an action on a site where they are already logged in.</p>
 
         <h3>What’s Going On?</h3>
-        <p>Your browser automatically includes your <strong>session cookie</strong> with every request — even if that request was triggered by a malicious website.</p>
-        <p>The server cannot tell a real request from a forged one.</p>
+        <p>Your browser automatically includes your <strong>session cookie</strong> with every request — even a forged one.</p>
+        <p>The server cannot distinguish a genuine request from a forged one.</p>
 
         <h3>Why It’s Important</h3>
         <ul>
             <li>Unauthorised money transfers</li>
-            <li>Password or email changes</li>
+            <li>Account email/password changes</li>
             <li>Admin actions triggered silently</li>
             <li>Data deletion or modification</li>
         </ul>
 
         <h3>Understanding CSRF Token Protection</h3>
-
-        <p>Imagine your browser has a <strong>magic badge</strong> (your login cookie) that proves who you are when you visit your bank.</p>
-
-        <p>A malicious website can secretly trigger a request like:</p>
-
-        <p><em>“Send £500 to the attacker!”</em></p>
-
-        <p>Your browser might unknowingly send this request using your magic badge.</p>
-
-        <p>CSRF protection adds a <strong>secret extra password</strong> (a CSRF token) to real forms. Only the real site knows this secret — attackers don't.</p>
-
-        <p>If a request doesn't include the secret token:</p>
-        <p><strong>❌ No token → request blocked<br>✔ Correct token → real request allowed</strong></p>
-
-        <p>It's like a club checking both:</p>
-        <ul>
-            <li>Your ID (cookie)</li>
-            <li>Your wristband (CSRF token)</li>
-        </ul>
-        <p>No wristband? No entry.</p>
-
-        <h3>How This Demo Works</h3>
-        <ul>
-            <li><strong>Victim Site</strong>: the real bank form</li>
-            <li><strong>Attacker Site</strong>: sends a forged request</li>
-            <li><strong>CSRF Token</strong>: blocks forged requests</li>
-        </ul>
+        <p>CSRF protection adds a <strong>secret token</strong> known only to the server and real forms.</p>
+        <p>Forged requests do not contain the secret, so they are blocked.</p>
 
         <h3>How To Prevent CSRF</h3>
         <ul>
             <li>CSRF tokens</li>
             <li>SameSite cookies</li>
-            <li>Double‑submit cookie pattern</li>
-            <li>Avoid GET for state‑changing actions</li>
+            <li>Double‑submit cookie defence</li>
+            <li>Avoid unsafe GET-based state changes</li>
         </ul>
     </div>
 
-    <!-- MAIN CONTENT (DEMO) -------------------------------------- -->
+    <!-- MAIN CONTENT -------------------------------------------- -->
     <div class="content">
+
         <div class="container">
 
             <h1>CSRF Demo (Simulated)</h1>
 
             <div class="row">
 
-                <!-- Victim Site Panel -->
+                <!-- Victim Panel -->
                 <div class="panel">
                     <span class="pill">Victim Site</span>
 
@@ -247,7 +214,7 @@
                         <label for="enableCsrf">Enable CSRF Token Protection</label>
                     </div>
 
-                    <div id="csrfTokenView" class="note"></div>
+                    <div id="csrfTokenView"></div>
 
                     <button onclick="legitTransfer()">Submit Transfer</button>
 
@@ -255,7 +222,7 @@
                     <div id="legitResult" class="panel" style="background:#0e0e0e;"></div>
                 </div>
 
-                <!-- Attacker Site Panel -->
+                <!-- Attacker Panel -->
                 <div class="panel">
                     <span class="pill">Attacker Site</span>
 
@@ -274,12 +241,134 @@
             <div id="serverLog"></div>
 
         </div>
-    </div>
 
+        <!-- ===================================================== -->
+        <!-- TEACHING SECTION (below demo)                         -->
+        <!-- ===================================================== -->
+        <div class="teaching-section">
+
+            <h2 class="section-title">1. Learning Outcomes</h2>
+            <ul>
+                <li>Explain what CSRF is and why it occurs</li>
+                <li>Identify weak authentication flows vulnerable to CSRF</li>
+                <li>Describe real-world CSRF attack consequences</li>
+                <li>Demonstrate CSRF safely in a controlled environment</li>
+                <li>Apply CSRF protections such as tokens and SameSite cookies</li>
+            </ul>
+
+            <h2 class="section-title">2. Introduction to CSRF</h2>
+            <p>
+                CSRF allows attackers to trick a logged‑in user’s browser into performing unintended actions.
+                Browsers automatically attach cookies to requests, even if the request originated from another site.
+            </p>
+            <p>Examples include:</p>
+            <ul>
+                <li>Transferring money</li>
+                <li>Changing account email/password</li>
+                <li>Enabling/disabling admin settings</li>
+            </ul>
+
+            <h2 class="section-title">3. Why CSRF Happens</h2>
+
+            <h3>3.1 Browser Behaviour</h3>
+            <p>Browsers automatically attach cookies to matching domain requests — even across sites.</p>
+
+            <h3>3.2 Missing CSRF Tokens</h3>
+            <p>Forms without a server‑generated secret allow forged submissions.</p>
+
+            <h3>3.3 Unsafe GET Requests</h3>
+            <p>If state‑changing actions use GET, attackers can trigger them with a simple image tag or redirect.</p>
+
+            <h2 class="section-title">4. Attack Flow Diagram</h2>
+            <pre>
+User logged in (has session cookie)
+              ↓
+Visits malicious site
+              ↓
+Hidden form auto-submits to bank
+              ↓
+Browser includes session cookie
+              ↓
+Server accepts the request (unless CSRF protection exists)
+            </pre>
+
+            <h2 class="section-title">5. Demo Scenario Explanation</h2>
+
+            <h3>Without CSRF Token</h3>
+            <pre>
+POST /transfer
+Cookie: session=abcd1234
+(no CSRF token)
+→ Server performs the action
+            </pre>
+
+            <h3>With CSRF Token</h3>
+            <pre>
+POST /transfer
+Cookie: session=abcd1234
+csrf_token=XYZ123 (valid)
+→ Server verifies token → Accepts request
+            </pre>
+
+            <h3>Forged Request</h3>
+            <pre>
+Attacker cannot read victim's token
+Forged request sent WITHOUT csrf_token
+→ Server blocks request
+            </pre>
+
+            <h2 class="section-title">6. Vulnerable vs Secure Examples</h2>
+
+            <h3>❌ Vulnerable (Missing Token)</h3>
+            <pre>
+<form action="/transfer" method="POST">
+    <input name="amount">
+    <button>Transfer</button>
+</form>
+            </pre>
+
+            <h3>✅ Secure (Token)</h3>
+            <pre>
+<form action="/transfer" method="POST">
+    <input type="hidden" name="csrf_token" value="XYZ123">
+    <input name="amount">
+    <button>Transfer</button>
+</form>
+            </pre>
+
+            <h3>Additional Protections</h3>
+            <ul>
+                <li><strong>SameSite=Lax/Strict</strong> cookies</li>
+                <li>Double‑submit cookies</li>
+                <li>Re‑authentication for sensitive actions</li>
+                <li>Avoiding state‑changing GET routes</li>
+            </ul>
+
+            <h2 class="section-title">7. Real‑World Case Studies</h2>
+
+            <h3>1. YouTube (2007)</h3>
+            <p>Attackers could auto‑subscribe users to channels via CSRF.</p>
+
+            <h3>2. Gmail CSRF (2007)</h3>
+            <p>A flaw allowed attackers to auto‑forward emails to themselves.</p>
+
+            <h3>3. Django Admin CSRF (2011)</h3>
+            <p>A misconfiguration allowed admin actions without token verification.</p>
+
+            <h2 class="section-title">8. Summary / Key Takeaways</h2>
+            <ul>
+                <li>CSRF exploits browser behaviour, not server bugs</li>
+                <li>Tokens break forged requests by requiring a secret attackers cannot know</li>
+                <li>SameSite cookies dramatically reduce risk</li>
+                <li>CSRF must be paired with authentication hardening</li>
+            </ul>
+
+        </div>
+    </div>
 </div>
 
 <script>
-/* CSRF Token Handling */
+// CSRF Token Handling
 let csrfToken = genToken();
 updateTokenView();
 
@@ -299,22 +388,24 @@ document.getElementById('enableCsrf').addEventListener('change', () => {
     updateTokenView();
 });
 
-/* Server-Side Logic Simulation */
+// Server Simulation
 function serverProcess({to, amount, token, tokenRequired}) {
     let log = [];
-
     log.push("POST /transfer");
-    log.push("Cookie: session=... (browser includes automatically)");
-    if (tokenRequired) log.push("Form token: " + (token || "(missing)"));
+    log.push("Cookie: session=abcd1234 (auto-sent)");
+
+    if (tokenRequired)
+        log.push("Form token: " + (token || "(missing)"));
+
     log.push(`Form data: to=${to}, amount=${amount}`);
 
     if (tokenRequired && token !== csrfToken) {
         log.push("Decision: 403 — invalid/missing CSRF token");
-        return {ok:false, log:log.join("\n"), msg:"❌ Blocked by CSRF protection"};
+        return { ok: false, log: log.join("\n"), msg: "❌ Blocked by CSRF protection" };
     }
 
     log.push("Decision: 200 — transfer accepted");
-    return {ok:true, log:log.join("\n"), msg:"✔ Transfer successful"};
+    return { ok: true, log: log.join("\n"), msg: "✔ Transfer successful" };
 }
 
 function legitTransfer() {
@@ -330,8 +421,8 @@ function legitTransfer() {
     });
 
     document.getElementById('legitResult').innerHTML =
-        res.ok ? `<span class="good">${res.msg}</span>`
-               : `<span class="bad">${res.msg}</span>`;
+        res.ok ? `<span class="good">${res.msg}</span>` :
+                 `<span class="bad">${res.msg}</span>`;
 
     document.getElementById('serverLog').textContent = res.log;
 }
@@ -347,8 +438,8 @@ function csrfAttack() {
     });
 
     document.getElementById('attackResult').innerHTML =
-        res.ok ? `<span class="bad">🔥 CSRF succeeded — funds stolen!</span>`
-               : `<span class="good">🛡️ CSRF blocked — token missing</span>`;
+        res.ok ? `<span class="bad">🔥 CSRF succeeded — funds stolen!</span>` :
+                 `<span class="good">🛡️ CSRF blocked — token missing</span>`;
 
     document.getElementById('serverLog').textContent = res.log;
 }
